@@ -24,6 +24,26 @@ const T = {
   redBorder: "#6b2020",
 };
 
+// Type definitions
+interface Expense {
+  id: number;
+  description: string;
+  amount: number;
+  paidBy: string;
+  participants: string[];
+  datetime: string;
+  splitMode: "equal" | "custom";
+  customShares?: { [memberName: string]: number };
+}
+
+interface Settlement {
+  id: number;
+  from: string;
+  to: string;
+  amount: number;
+  datetime: string;
+}
+
 function RoyalDivider() {
   return (
     <div
@@ -192,7 +212,6 @@ function SelectName({ members, onSelect, onSaveMembers }: { members: string[]; o
         padding: "20px",
       }}
     >
-      {/* Decorative top border */}
       <div
         style={{
           width: "100%",
@@ -353,7 +372,7 @@ function HomeTab({
   totalOwed: number;
   totalIOwe: number;
   onRecordPayment: (data: { from: string; to: string; amount: number }) => void;
-  settlements: any[];
+  settlements: Settlement[];
 }) {
   const entries = Object.entries(balances).sort((a: any, b: any) => b[1] - a[1]);
   const [payModal, setPayModal] = useState<null | { person: string; amount: number }>(null);
@@ -368,7 +387,6 @@ function HomeTab({
     const amt = parseFloat(customAmt);
     if (!amt || amt <= 0) return;
     const { person, amount } = payModal!;
-    // direction: owesMe → person paid me; iOwe → I paid them
     const from = amount > 0 ? person : myName;
     const to = amount > 0 ? myName : person;
     onRecordPayment({ from, to, amount: amt });
@@ -378,7 +396,6 @@ function HomeTab({
 
   return (
     <div>
-      {/* Summary banners */}
       <div style={{ display: "flex", gap: 8, marginBottom: 16 }}>
         <div
           style={{
@@ -563,7 +580,6 @@ function HomeTab({
         );
       })}
 
-      {/* Recent settlements */}
       {settlements.length > 0 && (
         <>
           <RoyalDivider />
@@ -578,7 +594,7 @@ function HomeTab({
           >
             ✅ RECENT SETTLEMENTS
           </div>
-          {settlements.slice(0, 5).map((s: any) => {
+          {settlements.slice(0, 5).map((s: Settlement) => {
             const dt = new Date(s.datetime);
             const iAmFrom = s.from === myName;
             return (
@@ -628,7 +644,6 @@ function HomeTab({
         </>
       )}
 
-      {/* Payment Modal */}
       {payModal && (
         <div
           style={{
@@ -753,37 +768,81 @@ function HomeTab({
   );
 }
 
-function ExpensesTab({ expenses, members, myName, onSave }: { expenses: any[]; members: string[]; myName: string; onSave: (expenses: any[]) => void }) {
+function ExpensesTab({ expenses, members, myName, onSave }: { expenses: Expense[]; members: string[]; myName: string; onSave: (expenses: Expense[]) => void }) {
   const [showForm, setShowForm] = useState(false);
   const [desc, setDesc] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const [amount, setAmount] = useState("");
   const [paidBy, setPaidBy] = useState(myName);
   const [participants, setParticipants] = useState<string[]>([]);
+  const [splitMode, setSplitMode] = useState<"equal" | "custom">("equal");
+  const [customShares, setCustomShares] = useState<{ [memberName: string]: number }>({});
+  const [splitError, setSplitError] = useState("");
 
   useEffect(() => {
     setParticipants([...members]);
     setPaidBy(myName);
+    setSplitMode("equal");
+    setCustomShares({});
+    setSplitError("");
   }, [members, myName]);
 
-  const toggleP = (m: string) =>
-    setParticipants((prev) =>
-      prev.includes(m) ? prev.filter((x) => x !== m) : [...prev, m]
-    );
+  const toggleP = (m: string) => {
+    const newParticipants = participants.includes(m)
+      ? participants.filter((x) => x !== m)
+      : [...participants, m];
+    setParticipants(newParticipants);
+    if (splitMode === "custom") {
+      const newShares = { ...customShares };
+      if (!newParticipants.includes(m)) {
+        delete newShares[m];
+      } else {
+        newShares[m] = 0;
+      }
+      setCustomShares(newShares);
+      setSplitError("");
+    }
+  };
 
   const selectAll = () => setParticipants([...members]);
   const clearAll = () => setParticipants([]);
 
+  const updateCustomShare = (member: string, value: string) => {
+    const numValue = parseFloat(value) || 0;
+    setCustomShares({
+      ...customShares,
+      [member]: numValue,
+    });
+    setSplitError("");
+  };
+
+  const validateCustomSplit = (): boolean => {
+    const a = parseFloat(amount);
+    const total = Object.values(customShares).reduce((sum, val) => sum + val, 0);
+    if (Math.abs(total - a) > 0.01) {
+      setSplitError(
+        `Total (₹${total.toFixed(2)}) must equal expense amount (₹${a.toFixed(2)})`
+      );
+      return false;
+    }
+    return true;
+  };
+
   const addExpense = () => {
     const a = parseFloat(amount);
     if (!desc.trim() || !a || participants.length === 0) return;
-    const newExp = {
+
+    if (splitMode === "custom" && !validateCustomSplit()) return;
+
+    const newExp: Expense = {
       id: Date.now(),
       description: desc.trim(),
       amount: a,
       paidBy,
       participants: [...participants],
       datetime: new Date().toISOString(),
+      splitMode,
+      customShares: splitMode === "custom" ? { ...customShares } : undefined,
     };
     onSave([newExp, ...expenses]);
     setDesc("");
@@ -791,6 +850,9 @@ function ExpensesTab({ expenses, members, myName, onSave }: { expenses: any[]; m
     setShowForm(false);
     setParticipants([...members]);
     setPaidBy(myName);
+    setSplitMode("equal");
+    setCustomShares({});
+    setSplitError("");
   };
 
   const deleteExpense = (id: number) => {
@@ -953,7 +1015,130 @@ function ExpensesTab({ expenses, members, myName, onSave }: { expenses: any[]; m
             </div>
           </div>
 
-          {participants.length > 0 && amount && (
+          <div style={{ marginBottom: 12 }}>
+            <div
+              style={{
+                color: T.creamDim,
+                fontSize: 11,
+                marginBottom: 8,
+                letterSpacing: 1,
+              }}
+            >
+              SPLIT TYPE:
+            </div>
+            <div style={{ display: "flex", gap: 16 }}>
+              <label
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  cursor: "pointer",
+                  color: T.cream,
+                  fontSize: 12,
+                }}
+              >
+                <input
+                  type="radio"
+                  checked={splitMode === "equal"}
+                  onChange={() => {
+                    setSplitMode("equal");
+                    setSplitError("");
+                  }}
+                  style={{ cursor: "pointer" }}
+                />
+                Equal Split
+              </label>
+              <label
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 8,
+                  cursor: "pointer",
+                  color: T.cream,
+                  fontSize: 12,
+                }}
+              >
+                <input
+                  type="radio"
+                  checked={splitMode === "custom"}
+                  onChange={() => {
+                    setSplitMode("custom");
+                    const shares: { [key: string]: number } = {};
+                    participants.forEach((p) => {
+                      shares[p] = 0;
+                    });
+                    setCustomShares(shares);
+                    setSplitError("");
+                  }}
+                  style={{ cursor: "pointer" }}
+                />
+                Custom Split
+              </label>
+            </div>
+          </div>
+
+          {splitMode === "custom" && participants.length > 0 && (
+            <div style={{ marginBottom: 12, padding: "10px", background: "#1a0e00", borderRadius: 2, border: `1px solid ${T.goldDim}` }}>
+              <div
+                style={{
+                  color: T.gold,
+                  fontSize: 11,
+                  marginBottom: 8,
+                  letterSpacing: 1,
+                }}
+              >
+                CUSTOM SPLIT (₹):
+              </div>
+              {participants.map((p) => (
+                <div
+                  key={p}
+                  style={{
+                    display: "flex",
+                    gap: 8,
+                    marginBottom: 6,
+                    alignItems: "center",
+                  }}
+                >
+                  <div style={{ color: T.cream, fontSize: 12, minWidth: 80 }}>
+                    {p}
+                  </div>
+                  <input
+                    type="number"
+                    value={customShares[p] || 0}
+                    onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                      updateCustomShare(p, e.target.value)
+                    }
+                    placeholder="0.00"
+                    style={{
+                      width: 80,
+                      padding: "6px",
+                      background: "#100800",
+                      border: `1px solid ${T.goldDim}`,
+                      borderRadius: 2,
+                      color: T.goldLight,
+                      fontSize: 12,
+                      outline: "none",
+                      fontFamily: "Georgia, serif",
+                    } as any}
+                  />
+                </div>
+              ))}
+              {splitError && (
+                <div
+                  style={{
+                    color: T.redLight,
+                    fontSize: 11,
+                    marginTop: 8,
+                    textAlign: "center",
+                  }}
+                >
+                  ⚠️ {splitError}
+                </div>
+              )}
+            </div>
+          )}
+
+          {participants.length > 0 && amount && splitMode === "equal" && (
             <div
               style={{
                 textAlign: "center",
@@ -1009,7 +1194,9 @@ function ExpensesTab({ expenses, members, myName, onSave }: { expenses: any[]; m
       )}
 
       {expenses.map((exp) => {
-        const share = exp.amount / exp.participants.length;
+        const share = exp.splitMode === "custom" && exp.customShares
+          ? exp.customShares[myName] || 0
+          : exp.amount / exp.participants.length;
         const iMePaid = exp.paidBy === myName;
         const imParticipant = exp.participants.includes(myName);
         const dt = new Date(exp.datetime);
@@ -1067,7 +1254,25 @@ function ExpensesTab({ expenses, members, myName, onSave }: { expenses: any[]; m
                     lineHeight: 1.5,
                   }}
                 >
-                  👥 {exp.participants.join(" · ")}
+                  {exp.splitMode === "custom" ? (
+                    <>
+                      <div style={{ color: T.goldLight, marginBottom: 4 }}>
+                        💳 CUSTOM SPLIT:
+                      </div>
+                      {exp.participants.map((p) => {
+                        const pShare = exp.customShares?.[p] || 0;
+                        return (
+                          <div key={p} style={{ paddingLeft: 8, fontSize: 10 }}>
+                            {p}: ₹{pShare.toFixed(2)}
+                          </div>
+                        );
+                      })}
+                    </>
+                  ) : (
+                    <>
+                      👥 {exp.participants.join(" · ")}
+                    </>
+                  )}
                 </div>
                 <div style={{ color: T.goldDim, fontSize: 10 }}>
                   🕐{" "}
@@ -1089,7 +1294,9 @@ function ExpensesTab({ expenses, members, myName, onSave }: { expenses: any[]; m
                   ₹{exp.amount.toFixed(2)}
                 </div>
                 <div style={{ color: T.creamDim, fontSize: 10 }}>
-                  ÷{exp.participants.length} = ₹{share.toFixed(2)}
+                  {exp.splitMode === "custom"
+                    ? `Custom: ₹${share.toFixed(2)}`
+                    : `÷${exp.participants.length} = ₹${share.toFixed(2)}`}
                 </div>
                 <div
                   style={{
@@ -1439,7 +1646,6 @@ function PinScreen({ onUnlock }: { onUnlock: (pin: string) => void }) {
             same PIN to access the same room
           </div>
 
-          {/* PIN dots */}
           <div
             style={{
               display: "flex",
@@ -1478,7 +1684,6 @@ function PinScreen({ onUnlock }: { onUnlock: (pin: string) => void }) {
             </div>
           )}
 
-          {/* Numpad */}
           <div
             style={{
               display: "grid",
@@ -1564,8 +1769,8 @@ export default function App() {
   const [pin, setPin] = useState<string | null>(null);
   const [myName, setMyName] = useState<string | null>(null);
   const [members, setMembers] = useState<string[]>([]);
-  const [expenses, setExpenses] = useState<any[]>([]);
-  const [settlements, setSettlements] = useState<any[]>([]);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [settlements, setSettlements] = useState<Settlement[]>([]);
   const [tab, setTab] = useState("home");
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
@@ -1635,7 +1840,7 @@ export default function App() {
     );
   };
 
-  const saveExpenses = async (ne: any[]) => {
+  const saveExpenses = async (ne: Expense[]) => {
     setSyncing(true);
     setExpenses(ne);
 
@@ -1655,7 +1860,7 @@ export default function App() {
   };
 
   const recordPayment = async ({ from, to, amount }: { from: string; to: string; amount: number }) => {
-    const newS = {
+    const newS: Settlement = {
       id: Date.now(),
       from,
       to,
@@ -1688,26 +1893,46 @@ export default function App() {
     members.forEach((m) => {
       if (m !== myName) bal[m] = 0;
     });
+
     // Add expenses
     expenses.forEach((exp) => {
-      const share = exp.amount / exp.participants.length;
-      if (exp.paidBy === myName) {
-        exp.participants.forEach((p: string) => {
-          if (p !== myName && bal[p] !== undefined) bal[p] += share;
-        });
-      } else if (
-        exp.participants.includes(myName) &&
-        bal[exp.paidBy] !== undefined
-      ) {
-        bal[exp.paidBy] -= share;
+      if (exp.splitMode === "custom" && exp.customShares) {
+        // Custom split mode
+        if (exp.paidBy === myName) {
+          Object.entries(exp.customShares).forEach(([participant, share]) => {
+            if (participant !== myName && bal[participant] !== undefined) {
+              bal[participant] += share;
+            }
+          });
+        } else if (bal[exp.paidBy] !== undefined) {
+          const myShare = exp.customShares[myName] || 0;
+          if (myShare > 0) {
+            bal[exp.paidBy] -= myShare;
+          }
+        }
+      } else {
+        // Equal split mode (default)
+        const share = exp.amount / exp.participants.length;
+        if (exp.paidBy === myName) {
+          exp.participants.forEach((p) => {
+            if (p !== myName && bal[p] !== undefined) bal[p] += share;
+          });
+        } else if (
+          exp.participants.includes(myName) &&
+          bal[exp.paidBy] !== undefined
+        ) {
+          bal[exp.paidBy] -= share;
+        }
       }
     });
+
     // Apply settlements
     settlements.forEach((s) => {
       if (s.from === myName && bal[s.to] !== undefined) bal[s.to] += s.amount;
       else if (s.to === myName && bal[s.from] !== undefined)
         bal[s.from] -= s.amount;
     });
+
     return bal;
   };
 
@@ -1783,7 +2008,6 @@ export default function App() {
         margin: "0 auto",
       }}
     >
-      {/* Header */}
       <div
         style={{
           background: `linear-gradient(180deg, #1e0800, ${T.card})`,
@@ -1861,7 +2085,6 @@ export default function App() {
           )}
         </div>
 
-        {/* Net balance pill */}
         <div
           style={{
             display: "inline-block",
@@ -1883,7 +2106,6 @@ export default function App() {
         </div>
       </div>
 
-      {/* Content */}
       <div style={{ padding: "14px 14px 90px" }}>
         {tab === "home" && (
           <HomeTab
@@ -1910,7 +2132,6 @@ export default function App() {
         )}
       </div>
 
-      {/* Bottom nav */}
       <div
         style={{
           position: "fixed",
