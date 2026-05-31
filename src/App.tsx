@@ -240,10 +240,12 @@ function SelectName({
         fontFamily: "Georgia, serif",
         color: T.cream,
         display: "flex",
-        flexDirection: "column",
+        justifyContent: "flex-start",
         alignItems: "center",
-        justifyContent: "center",
-        padding: "20px",
+        position: "relative",
+        paddingTop: "10vh",
+        paddingLeft: 20,
+        paddingRight: 20,
       }}
     >
       <div
@@ -2062,7 +2064,7 @@ export default function App() {
           style={{
             position: "absolute",
             inset: 0,
-            background: "rgba(0,0,0,0.45)",
+            background: "rgba(0,0,0,0.35)",
             backdropFilter: "blur(2px)",
           }}
         />
@@ -2074,6 +2076,7 @@ export default function App() {
             width: "100%",
             maxWidth: 350,
             textAlign: "center",
+            marginTop: -20,
           }}
         >
           <div
