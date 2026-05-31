@@ -900,7 +900,7 @@ function ExpensesTab({
 
     if (splitMode === "custom" && !validateCustomSplit()) return;
 
-    const newExp: Expense = {
+    const newExp: any = {
       id: Date.now(),
       description: desc.trim(),
       amount: a,
@@ -908,8 +908,11 @@ function ExpensesTab({
       participants: [...participants],
       datetime: new Date().toISOString(),
       splitMode,
-      customShares: splitMode === "custom" ? { ...customShares } : undefined,
     };
+
+    if (splitMode === "custom") {
+      newExp.customShares = { ...customShares };
+    }
     onSave([newExp, ...expenses]);
     setDesc("");
     setAmount("");
@@ -1939,6 +1942,10 @@ export default function App() {
   };
 
   const saveExpenses = async (ne: Expense[]) => {
+    const cleanedExpenses = JSON.parse(JSON.stringify(ne));
+
+    setSyncing(true);
+    setExpenses(cleanedExpenses);
     setSyncing(true);
     setExpenses(ne);
 
@@ -1948,7 +1955,7 @@ export default function App() {
       docRef,
       {
         members,
-        expenses: ne,
+        expenses: cleanedExpenses,
         settlements,
       },
       { merge: true }
