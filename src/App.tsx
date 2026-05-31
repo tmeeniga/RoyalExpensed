@@ -1,4 +1,10 @@
-import { useState, useEffect, ReactNode, ChangeEvent, KeyboardEvent } from "react";
+import {
+  useState,
+  useEffect,
+  ReactNode,
+  ChangeEvent,
+  KeyboardEvent,
+} from "react";
 import { db } from "./firebase";
 import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore";
 
@@ -60,7 +66,15 @@ function RoyalDivider() {
   );
 }
 
-function RoyalCard({ children, style = {}, glow }: { children: ReactNode; style?: any; glow?: boolean }) {
+function RoyalCard({
+  children,
+  style = {},
+  glow,
+}: {
+  children: ReactNode;
+  style?: any;
+  glow?: boolean;
+}) {
   return (
     <div
       style={{
@@ -129,7 +143,17 @@ function RoyalCard({ children, style = {}, glow }: { children: ReactNode; style?
   );
 }
 
-function Chip({ label, active, onClick, color }: { label: string; active: boolean; onClick: () => void; color?: string }) {
+function Chip({
+  label,
+  active,
+  onClick,
+  color,
+}: {
+  label: string;
+  active: boolean;
+  onClick: () => void;
+  color?: string;
+}) {
   const bg = active ? color || T.saffron : "#1e1000";
   const borderC = active ? color || T.saffron : T.goldDim;
   return (
@@ -172,23 +196,33 @@ function RoyalInput({
       placeholder={placeholder}
       type={type}
       onKeyDown={onKeyDown}
-      style={{
-        width: "100%",
-        padding: "9px 12px",
-        boxSizing: "border-box",
-        background: "#100800",
-        border: `1px solid ${T.goldDim}`,
-        borderRadius: 2,
-        color: T.cream,
-        fontSize: 13,
-        outline: "none",
-        fontFamily: "Georgia, serif",
-      } as any}
+      style={
+        {
+          width: "100%",
+          padding: "9px 12px",
+          boxSizing: "border-box",
+          background: "#100800",
+          border: `1px solid ${T.goldDim}`,
+          borderRadius: 2,
+          color: T.cream,
+          fontSize: 13,
+          outline: "none",
+          fontFamily: "Georgia, serif",
+        } as any
+      }
     />
   );
 }
 
-function SelectName({ members, onSelect, onSaveMembers }: { members: string[]; onSelect: (name: string) => void; onSaveMembers: (members: string[]) => void }) {
+function SelectName({
+  members,
+  onSelect,
+  onSaveMembers,
+}: {
+  members: string[];
+  onSelect: (name: string) => void;
+  onSaveMembers: (members: string[]) => void;
+}) {
   const [newName, setNewName] = useState("");
 
   const add = () => {
@@ -323,9 +357,13 @@ function SelectName({ members, onSelect, onSaveMembers }: { members: string[]; o
           <div style={{ display: "flex", gap: 8 }}>
             <RoyalInput
               value={newName}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => setNewName(e.target.value)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                setNewName(e.target.value)
+              }
               placeholder="Enter name..."
-              onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => e.key === "Enter" && add()}
+              onKeyDown={(e: KeyboardEvent<HTMLInputElement>) =>
+                e.key === "Enter" && add()
+              }
             />
             <button
               onClick={add}
@@ -374,8 +412,13 @@ function HomeTab({
   onRecordPayment: (data: { from: string; to: string; amount: number }) => void;
   settlements: Settlement[];
 }) {
-  const entries = Object.entries(balances).sort((a: any, b: any) => b[1] - a[1]);
-  const [payModal, setPayModal] = useState<null | { person: string; amount: number }>(null);
+  const entries = Object.entries(balances).sort(
+    (a: any, b: any) => b[1] - a[1]
+  );
+  const [payModal, setPayModal] = useState<null | {
+    person: string;
+    amount: number;
+  }>(null);
   const [customAmt, setCustomAmt] = useState("");
 
   const openPay = (person: string, amount: number) => {
@@ -708,22 +751,26 @@ function HomeTab({
               </div>
               <input
                 value={customAmt}
-                onChange={(e: ChangeEvent<HTMLInputElement>) => setCustomAmt(e.target.value)}
+                onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                  setCustomAmt(e.target.value)
+                }
                 type="number"
-                style={{
-                  width: "100%",
-                  padding: "10px",
-                  boxSizing: "border-box",
-                  marginBottom: 14,
-                  background: "#100800",
-                  border: `1px solid ${T.gold}`,
-                  borderRadius: 2,
-                  color: T.goldLight,
-                  fontSize: 20,
-                  textAlign: "center",
-                  fontFamily: "Georgia, serif",
-                  outline: "none",
-                } as any}
+                style={
+                  {
+                    width: "100%",
+                    padding: "10px",
+                    boxSizing: "border-box",
+                    marginBottom: 14,
+                    background: "#100800",
+                    border: `1px solid ${T.gold}`,
+                    borderRadius: 2,
+                    color: T.goldLight,
+                    fontSize: 20,
+                    textAlign: "center",
+                    fontFamily: "Georgia, serif",
+                    outline: "none",
+                  } as any
+                }
               />
               <div style={{ display: "flex", gap: 10 }}>
                 <button
@@ -768,7 +815,17 @@ function HomeTab({
   );
 }
 
-function ExpensesTab({ expenses, members, myName, onSave }: { expenses: Expense[]; members: string[]; myName: string; onSave: (expenses: Expense[]) => void }) {
+function ExpensesTab({
+  expenses,
+  members,
+  myName,
+  onSave,
+}: {
+  expenses: Expense[];
+  members: string[];
+  myName: string;
+  onSave: (expenses: Expense[]) => void;
+}) {
   const [showForm, setShowForm] = useState(false);
   const [desc, setDesc] = useState("");
   const [deleteId, setDeleteId] = useState<number | null>(null);
@@ -776,7 +833,9 @@ function ExpensesTab({ expenses, members, myName, onSave }: { expenses: Expense[
   const [paidBy, setPaidBy] = useState(myName);
   const [participants, setParticipants] = useState<string[]>([]);
   const [splitMode, setSplitMode] = useState<"equal" | "custom">("equal");
-  const [customShares, setCustomShares] = useState<{ [memberName: string]: number }>({});
+  const [customShares, setCustomShares] = useState<{
+    [memberName: string]: number;
+  }>({});
   const [splitError, setSplitError] = useState("");
 
   useEffect(() => {
@@ -818,10 +877,15 @@ function ExpensesTab({ expenses, members, myName, onSave }: { expenses: Expense[
 
   const validateCustomSplit = (): boolean => {
     const a = parseFloat(amount);
-    const total = Object.values(customShares).reduce((sum, val) => sum + val, 0);
+    const total = Object.values(customShares).reduce(
+      (sum, val) => sum + val,
+      0
+    );
     if (Math.abs(total - a) > 0.01) {
       setSplitError(
-        `Total (₹${total.toFixed(2)}) must equal expense amount (₹${a.toFixed(2)})`
+        `Total (₹${total.toFixed(2)}) must equal expense amount (₹${a.toFixed(
+          2
+        )})`
       );
       return false;
     }
@@ -922,7 +986,9 @@ function ExpensesTab({ expenses, members, myName, onSave }: { expenses: Expense[
             </div>
             <RoyalInput
               value={desc}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => setDesc(e.target.value)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                setDesc(e.target.value)
+              }
               placeholder="e.g. Chicken feast, Cool drinks..."
             />
           </div>
@@ -940,7 +1006,9 @@ function ExpensesTab({ expenses, members, myName, onSave }: { expenses: Expense[
             </div>
             <RoyalInput
               value={amount}
-              onChange={(e: ChangeEvent<HTMLInputElement>) => setAmount(e.target.value)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) =>
+                setAmount(e.target.value)
+              }
               placeholder="0.00"
               type="number"
             />
@@ -1078,7 +1146,15 @@ function ExpensesTab({ expenses, members, myName, onSave }: { expenses: Expense[
           </div>
 
           {splitMode === "custom" && participants.length > 0 && (
-            <div style={{ marginBottom: 12, padding: "10px", background: "#1a0e00", borderRadius: 2, border: `1px solid ${T.goldDim}` }}>
+            <div
+              style={{
+                marginBottom: 12,
+                padding: "10px",
+                background: "#1a0e00",
+                borderRadius: 2,
+                border: `1px solid ${T.goldDim}`,
+              }}
+            >
               <div
                 style={{
                   color: T.gold,
@@ -1109,17 +1185,19 @@ function ExpensesTab({ expenses, members, myName, onSave }: { expenses: Expense[
                       updateCustomShare(p, e.target.value)
                     }
                     placeholder="0.00"
-                    style={{
-                      width: 80,
-                      padding: "6px",
-                      background: "#100800",
-                      border: `1px solid ${T.goldDim}`,
-                      borderRadius: 2,
-                      color: T.goldLight,
-                      fontSize: 12,
-                      outline: "none",
-                      fontFamily: "Georgia, serif",
-                    } as any}
+                    style={
+                      {
+                        width: 80,
+                        padding: "6px",
+                        background: "#100800",
+                        border: `1px solid ${T.goldDim}`,
+                        borderRadius: 2,
+                        color: T.goldLight,
+                        fontSize: 12,
+                        outline: "none",
+                        fontFamily: "Georgia, serif",
+                      } as any
+                    }
                   />
                 </div>
               ))}
@@ -1153,7 +1231,8 @@ function ExpensesTab({ expenses, members, myName, onSave }: { expenses: Expense[
               }}
             >
               Each pays: ₹
-              {(parseFloat(amount || "0") / participants.length).toFixed(2)} each
+              {(parseFloat(amount || "0") / participants.length).toFixed(2)}{" "}
+              each
             </div>
           )}
 
@@ -1194,9 +1273,10 @@ function ExpensesTab({ expenses, members, myName, onSave }: { expenses: Expense[
       )}
 
       {expenses.map((exp) => {
-        const share = exp.splitMode === "custom" && exp.customShares
-          ? exp.customShares[myName] || 0
-          : exp.amount / exp.participants.length;
+        const share =
+          exp.splitMode === "custom" && exp.customShares
+            ? exp.customShares[myName] || 0
+            : exp.amount / exp.participants.length;
         const iMePaid = exp.paidBy === myName;
         const imParticipant = exp.participants.includes(myName);
         const dt = new Date(exp.datetime);
@@ -1269,9 +1349,7 @@ function ExpensesTab({ expenses, members, myName, onSave }: { expenses: Expense[
                       })}
                     </>
                   ) : (
-                    <>
-                      👥 {exp.participants.join(" · ")}
-                    </>
+                    <>👥 {exp.participants.join(" · ")}</>
                   )}
                 </div>
                 <div style={{ color: T.goldDim, fontSize: 10 }}>
@@ -1413,7 +1491,13 @@ function ExpensesTab({ expenses, members, myName, onSave }: { expenses: Expense[
   );
 }
 
-function MembersTab({ members, onSave }: { members: string[]; onSave: (members: string[]) => void }) {
+function MembersTab({
+  members,
+  onSave,
+}: {
+  members: string[];
+  onSave: (members: string[]) => void;
+}) {
   const [newName, setNewName] = useState("");
 
   const add = () => {
@@ -1444,9 +1528,13 @@ function MembersTab({ members, onSave }: { members: string[]; onSave: (members: 
         <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
           <RoyalInput
             value={newName}
-            onChange={(e: ChangeEvent<HTMLInputElement>) => setNewName(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) =>
+              setNewName(e.target.value)
+            }
             placeholder="Add new noble..."
-            onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => e.key === "Enter" && add()}
+            onKeyDown={(e: KeyboardEvent<HTMLInputElement>) =>
+              e.key === "Enter" && add()
+            }
           />
           <button
             onClick={add}
@@ -1719,21 +1807,23 @@ function PinScreen({ onUnlock }: { onUnlock: (pin: string) => void }) {
           <button
             onClick={unlock}
             disabled={pin.length < 4 || checking}
-            style={{
-              width: "100%",
-              padding: "12px",
-              fontFamily: "Georgia, serif",
-              background:
-                pin.length >= 4
-                  ? `linear-gradient(135deg, ${T.maroon}, ${T.saffron})`
-                  : "#2a1500",
-              border: `1px solid ${pin.length >= 4 ? T.gold : T.goldDim}`,
-              borderRadius: 2,
-              color: pin.length >= 4 ? T.cream : T.creamDim,
-              cursor: pin.length >= 4 ? "pointer" : "not-allowed",
-              fontSize: 13,
-              letterSpacing: 2,
-            } as any}
+            style={
+              {
+                width: "100%",
+                padding: "12px",
+                fontFamily: "Georgia, serif",
+                background:
+                  pin.length >= 4
+                    ? `linear-gradient(135deg, ${T.maroon}, ${T.saffron})`
+                    : "#2a1500",
+                border: `1px solid ${pin.length >= 4 ? T.gold : T.goldDim}`,
+                borderRadius: 2,
+                color: pin.length >= 4 ? T.cream : T.creamDim,
+                cursor: pin.length >= 4 ? "pointer" : "not-allowed",
+                fontSize: 13,
+                letterSpacing: 2,
+              } as any
+            }
           >
             {checking ? "⟳ OPENING GATES..." : "⚜️ ENTER THE CHAMBER"}
           </button>
@@ -1767,6 +1857,7 @@ function PinScreen({ onUnlock }: { onUnlock: (pin: string) => void }) {
 
 export default function App() {
   const [pin, setPin] = useState<string | null>(null);
+  const [selectedRoom, setSelectedRoom] = useState<string | null>(null);
   const [myName, setMyName] = useState<string | null>(null);
   const [members, setMembers] = useState<string[]>([]);
   const [expenses, setExpenses] = useState<Expense[]>([]);
@@ -1801,6 +1892,11 @@ export default function App() {
   };
 
   const handleUnlock = (enteredPin: string) => {
+    if (selectedRoom && enteredPin !== selectedRoom) {
+      alert("Wrong PIN");
+      return;
+    }
+
     setPin(enteredPin);
     setLoading(true);
     load(enteredPin);
@@ -1859,7 +1955,15 @@ export default function App() {
     setSyncing(false);
   };
 
-  const recordPayment = async ({ from, to, amount }: { from: string; to: string; amount: number }) => {
+  const recordPayment = async ({
+    from,
+    to,
+    amount,
+  }: {
+    from: string;
+    to: string;
+    amount: number;
+  }) => {
     const newS: Settlement = {
       id: Date.now(),
       from,
@@ -1889,6 +1993,7 @@ export default function App() {
   };
 
   const getBalances = () => {
+    if (!myName) return {};
     const bal: { [key: string]: number } = {};
     members.forEach((m) => {
       if (m !== myName) bal[m] = 0;
@@ -1918,6 +2023,7 @@ export default function App() {
             if (p !== myName && bal[p] !== undefined) bal[p] += share;
           });
         } else if (
+          myName &&
           exp.participants.includes(myName) &&
           bal[exp.paidBy] !== undefined
         ) {
@@ -1935,6 +2041,71 @@ export default function App() {
 
     return bal;
   };
+
+  if (!selectedRoom) {
+    return (
+      <div
+        style={{
+          background: T.bgDeep,
+          minHeight: "100vh",
+          display: "flex",
+          flexDirection: "column",
+          justifyContent: "center",
+          alignItems: "center",
+          color: T.cream,
+          fontFamily: "Georgia, serif",
+          padding: 20,
+        }}
+      >
+        <div style={{ fontSize: 60 }}>⚜️</div>
+        <div
+          style={{
+            color: T.goldLight,
+            fontSize: 24,
+            fontWeight: "bold",
+            letterSpacing: 3,
+            marginTop: 10,
+            marginBottom: 30,
+          }}
+        >
+          🔱 हर हर महादेव 🔱
+        </div>
+
+        <button
+          onClick={() => setSelectedRoom("9701")}
+          style={{
+            width: 280,
+            padding: 18,
+            marginBottom: 15,
+            background: T.maroon,
+            border: `1px solid ${T.gold}`,
+            color: T.cream,
+            fontSize: 18,
+            cursor: "pointer",
+            fontFamily: "Georgia, serif",
+          }}
+        >
+          🏠 Room Expenses
+        </button>
+
+        <button
+          onClick={() => setSelectedRoom("9392")}
+          style={{
+            width: 280,
+            padding: 18,
+            background: T.saffron,
+            border: `1px solid ${T.gold}`,
+            color: "white",
+            fontSize: 18,
+            cursor: "pointer",
+            fontFamily: "Georgia, serif",
+          }}
+        >
+          ✈️ Trip Expenses
+        </button>
+      </div>
+    );
+  }
 
   if (!pin) return <PinScreen onUnlock={handleUnlock} />;
 
@@ -2068,6 +2239,7 @@ export default function App() {
           <div
             onClick={() => {
               setPin(null);
+              setSelectedRoom(null);
               setMyName(null);
               setMembers([]);
               setExpenses([]);
