@@ -240,12 +240,10 @@ function SelectName({
         fontFamily: "Georgia, serif",
         color: T.cream,
         display: "flex",
-        justifyContent: "flex-start",
+        flexDirection: "column",
         alignItems: "center",
-        position: "relative",
-        paddingLeft: 20,
-        paddingRight: 20,
-        paddingTop: "6vh",
+        justifyContent: "center",
+        padding: "20px",
       }}
     >
       <div
@@ -2073,9 +2071,8 @@ export default function App() {
           style={{
             position: "relative",
             zIndex: 2,
+            width: "100%",
             maxWidth: 350,
-            textAlign: "center",
-            marginTop: -20,
             textAlign: "center",
           }}
         >
