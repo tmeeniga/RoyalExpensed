@@ -219,7 +219,7 @@ function SelectName({ members, onSelect, onSaveMembers }) {
             marginTop: 4,
           }}
         >
-          ROYAL BACHELOR EXPENSE LEDGER
+          Jalgar Sanga 🎣 🌊 Expenses
         </div>
         <div
           style={{
@@ -1387,7 +1387,7 @@ function PinScreen({ onUnlock }) {
             marginTop: 4,
           }}
         >
-          ROYAL BACHELOR EXPENSE LEDGER
+          Jalgar Sanga 🎣 🌊 Expenses
         </div>
         <div
           style={{
@@ -1795,7 +1795,7 @@ export default function App() {
           ⚜️ 🔱 हर हर महादेव 🔱 ⚜️
         </div>
         <div style={{ color: T.creamDim, fontSize: 10, letterSpacing: 3 }}>
-          ROYAL BACHELOR EXPENSE LEDGER
+          Jalgar Sanga 🎣 🌊 Expenses
         </div>
         <div
           style={{
