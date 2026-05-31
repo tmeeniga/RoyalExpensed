@@ -2056,7 +2056,7 @@ export default function App() {
           display: "flex",
           justifyContent: "flex-start",
           position: "relative",
-          paddingTop: "8vh",
+          paddingTop: "18vh",
           paddingLeft: 20,
           paddingRight: 20,
         }}
@@ -2077,7 +2077,7 @@ export default function App() {
             width: "100%",
             maxWidth: 350,
             textAlign: "center",
-            marginTop: -80,
+            marginTop: 0,
           }}
         >
           <div
