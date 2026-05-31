@@ -2046,63 +2046,95 @@ export default function App() {
     return (
       <div
         style={{
-          background: T.bgDeep,
           minHeight: "100vh",
+          backgroundImage: "url('/room-bg.png')",
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
           display: "flex",
-          flexDirection: "column",
           justifyContent: "center",
           alignItems: "center",
-          color: T.cream,
-          fontFamily: "Georgia, serif",
+          position: "relative",
           padding: 20,
         }}
       >
-        <div style={{ fontSize: 60 }}>⚜️</div>
         <div
           style={{
-            color: T.goldLight,
-            fontSize: 24,
-            fontWeight: "bold",
-            letterSpacing: 3,
-            marginTop: 10,
-            marginBottom: 30,
+            position: "absolute",
+            inset: 0,
+            background: "rgba(0,0,0,0.45)",
+            backdropFilter: "blur(2px)",
+          }}
+        />
+
+        <div
+          style={{
+            position: "relative",
+            zIndex: 2,
+            width: "100%",
+            maxWidth: 350,
+            textAlign: "center",
           }}
         >
-          🔱 हर हर महादेव 🔱
+          <div
+            style={{
+              color: "#fff",
+              fontSize: 28,
+              fontWeight: 700,
+              marginBottom: 10,
+            }}
+          >
+            🔱 हर हर महादेव 🔱
+          </div>
+
+          <div
+            style={{
+              color: "#f0c040",
+              marginBottom: 30,
+              letterSpacing: 2,
+              fontSize: 13,
+            }}
+          >
+            JALGAR SANGA EXPENSES
+          </div>
+
+          <button
+            onClick={() => setSelectedRoom("9701")}
+            style={{
+              width: "100%",
+              padding: "18px",
+              marginBottom: 15,
+              borderRadius: 20,
+              border: "1px solid rgba(255,255,255,.25)",
+              background: "rgba(255,255,255,.12)",
+              backdropFilter: "blur(15px)",
+              color: "#fff",
+              fontSize: 18,
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+          >
+            🏠 Room Expenses
+          </button>
+
+          <button
+            onClick={() => setSelectedRoom("9392")}
+            style={{
+              width: "100%",
+              padding: "18px",
+              borderRadius: 20,
+              border: "1px solid rgba(255,255,255,.25)",
+              background: "rgba(255,255,255,.12)",
+              backdropFilter: "blur(15px)",
+              color: "#fff",
+              fontSize: 18,
+              fontWeight: 600,
+              cursor: "pointer",
+            }}
+          >
+            ✈️ Trip Expenses
+          </button>
         </div>
-
-        <button
-          onClick={() => setSelectedRoom("9701")}
-          style={{
-            width: 280,
-            padding: 18,
-            marginBottom: 15,
-            background: T.maroon,
-            border: `1px solid ${T.gold}`,
-            color: T.cream,
-            fontSize: 18,
-            cursor: "pointer",
-            fontFamily: "Georgia, serif",
-          }}
-        >
-          🏠 Room Expenses
-        </button>
-
-        <button
-          onClick={() => setSelectedRoom("9392")}
-          style={{
-            width: 280,
-            padding: 18,
-            background: T.saffron,
-            border: `1px solid ${T.gold}`,
-            color: "white",
-            fontSize: 18,
-            cursor: "pointer",
-            fontFamily: "Georgia, serif",
-          }}
-        >
-          ✈️ Trip Expenses
-        </button>
       </div>
     );
   }
