@@ -2051,21 +2051,22 @@ export default function App() {
           minHeight: "100vh",
           backgroundImage: "url('/room-bg.png')",
           backgroundSize: "cover",
-          backgroundPosition: "center",
+          backgroundPosition: "center top",
           backgroundRepeat: "no-repeat",
           display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
+          justifyContent: "flex-start",
           position: "relative",
-          padding: 20,
+          paddingTop: "8vh",
+          paddingLeft: 20,
+          paddingRight: 20,
         }}
       >
         <div
           style={{
             position: "absolute",
             inset: 0,
-            background: "rgba(0,0,0,0.35)",
-            backdropFilter: "blur(2px)",
+            background: "rgba(0,0,0,0.25)",
+            backdropFilter: "blur(1px)",
           }}
         />
 
@@ -2076,7 +2077,7 @@ export default function App() {
             width: "100%",
             maxWidth: 350,
             textAlign: "center",
-            marginTop: -20,
+            marginTop: -80,
           }}
         >
           <div
