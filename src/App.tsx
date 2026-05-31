@@ -240,18 +240,18 @@ function SelectName({
         fontFamily: "Georgia, serif",
         color: T.cream,
         display: "flex",
-        justifyContent: "flex-start",
+        flexDirection: "column",
+        justifyContent: "center",
         alignItems: "center",
         position: "relative",
-        paddingTop: "10vh",
-        paddingLeft: 20,
-        paddingRight: 20,
+        padding: 20,
       }}
     >
       <div
         style={{
           width: "100%",
           maxWidth: 380,
+          margin: "0 auto",
           height: 4,
           background: `linear-gradient(90deg, transparent, ${T.gold}, transparent)`,
           marginBottom: 28,
