@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, ReactNode, ChangeEvent, KeyboardEvent } from "react";
 import { db } from "./firebase";
 import { doc, getDoc, setDoc, onSnapshot } from "firebase/firestore";
 
@@ -40,7 +40,7 @@ function RoyalDivider() {
   );
 }
 
-function RoyalCard({ children, style = {}, glow }) {
+function RoyalCard({ children, style = {}, glow }: { children: ReactNode; style?: any; glow?: boolean }) {
   return (
     <div
       style={{
@@ -109,7 +109,7 @@ function RoyalCard({ children, style = {}, glow }) {
   );
 }
 
-function Chip({ label, active, onClick, color }) {
+function Chip({ label, active, onClick, color }: { label: string; active: boolean; onClick: () => void; color?: string }) {
   const bg = active ? color || T.saffron : "#1e1000";
   const borderC = active ? color || T.saffron : T.goldDim;
   return (
@@ -138,6 +138,12 @@ function RoyalInput({
   placeholder,
   type = "text",
   onKeyDown,
+}: {
+  value: string;
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void;
+  placeholder: string;
+  type?: string;
+  onKeyDown?: (e: KeyboardEvent<HTMLInputElement>) => void;
 }) {
   return (
     <input
@@ -157,13 +163,12 @@ function RoyalInput({
         fontSize: 13,
         outline: "none",
         fontFamily: "Georgia, serif",
-        "::placeholder": { color: T.creamDim },
-      }}
+      } as any}
     />
   );
 }
 
-function SelectName({ members, onSelect, onSaveMembers }) {
+function SelectName({ members, onSelect, onSaveMembers }: { members: string[]; onSelect: (name: string) => void; onSaveMembers: (members: string[]) => void }) {
   const [newName, setNewName] = useState("");
 
   const add = () => {
@@ -261,7 +266,7 @@ function SelectName({ members, onSelect, onSaveMembers }) {
             </div>
           )}
 
-          {members.map((m) => (
+          {members.map((m: string) => (
             <div
               key={m}
               onClick={() => onSelect(m)}
@@ -299,9 +304,9 @@ function SelectName({ members, onSelect, onSaveMembers }) {
           <div style={{ display: "flex", gap: 8 }}>
             <RoyalInput
               value={newName}
-              onChange={(e) => setNewName(e.target.value)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setNewName(e.target.value)}
               placeholder="Enter name..."
-              onKeyDown={(e) => e.key === "Enter" && add()}
+              onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => e.key === "Enter" && add()}
             />
             <button
               onClick={add}
@@ -342,12 +347,19 @@ function HomeTab({
   totalIOwe,
   onRecordPayment,
   settlements,
+}: {
+  balances: { [key: string]: number };
+  myName: string;
+  totalOwed: number;
+  totalIOwe: number;
+  onRecordPayment: (data: { from: string; to: string; amount: number }) => void;
+  settlements: any[];
 }) {
-  const entries = Object.entries(balances).sort((a, b) => b[1] - a[1]);
-  const [payModal, setPayModal] = useState(null); // { person, amount, direction }
+  const entries = Object.entries(balances).sort((a: any, b: any) => b[1] - a[1]);
+  const [payModal, setPayModal] = useState<null | { person: string; amount: number }>(null);
   const [customAmt, setCustomAmt] = useState("");
 
-  const openPay = (person, amount) => {
+  const openPay = (person: string, amount: number) => {
     setCustomAmt(Math.abs(amount).toFixed(2));
     setPayModal({ person, amount });
   };
@@ -355,7 +367,7 @@ function HomeTab({
   const confirmPay = () => {
     const amt = parseFloat(customAmt);
     if (!amt || amt <= 0) return;
-    const { person, amount } = payModal;
+    const { person, amount } = payModal!;
     // direction: owesMe → person paid me; iOwe → I paid them
     const from = amount > 0 ? person : myName;
     const to = amount > 0 ? myName : person;
@@ -450,7 +462,7 @@ function HomeTab({
         </div>
       )}
 
-      {entries.map(([person, amount]) => {
+      {entries.map(([person, amount]: [string, number]) => {
         const owesMe = amount > 0.005;
         const iOwe = amount < -0.005;
         const settled = !owesMe && !iOwe;
@@ -566,7 +578,7 @@ function HomeTab({
           >
             ✅ RECENT SETTLEMENTS
           </div>
-          {settlements.slice(0, 5).map((s) => {
+          {settlements.slice(0, 5).map((s: any) => {
             const dt = new Date(s.datetime);
             const iAmFrom = s.from === myName;
             return (
@@ -681,7 +693,7 @@ function HomeTab({
               </div>
               <input
                 value={customAmt}
-                onChange={(e) => setCustomAmt(e.target.value)}
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setCustomAmt(e.target.value)}
                 type="number"
                 style={{
                   width: "100%",
@@ -696,7 +708,7 @@ function HomeTab({
                   textAlign: "center",
                   fontFamily: "Georgia, serif",
                   outline: "none",
-                }}
+                } as any}
               />
               <div style={{ display: "flex", gap: 10 }}>
                 <button
@@ -741,20 +753,20 @@ function HomeTab({
   );
 }
 
-function ExpensesTab({ expenses, members, myName, onSave }) {
+function ExpensesTab({ expenses, members, myName, onSave }: { expenses: any[]; members: string[]; myName: string; onSave: (expenses: any[]) => void }) {
   const [showForm, setShowForm] = useState(false);
   const [desc, setDesc] = useState("");
-  const [deleteId, setDeleteId] = useState(null);
+  const [deleteId, setDeleteId] = useState<number | null>(null);
   const [amount, setAmount] = useState("");
   const [paidBy, setPaidBy] = useState(myName);
-  const [participants, setParticipants] = useState([]);
+  const [participants, setParticipants] = useState<string[]>([]);
 
   useEffect(() => {
     setParticipants([...members]);
     setPaidBy(myName);
   }, [members, myName]);
 
-  const toggleP = (m) =>
+  const toggleP = (m: string) =>
     setParticipants((prev) =>
       prev.includes(m) ? prev.filter((x) => x !== m) : [...prev, m]
     );
@@ -781,7 +793,7 @@ function ExpensesTab({ expenses, members, myName, onSave }) {
     setPaidBy(myName);
   };
 
-  const deleteExpense = (id) => {
+  const deleteExpense = (id: number) => {
     setDeleteId(id);
   };
 
@@ -848,7 +860,7 @@ function ExpensesTab({ expenses, members, myName, onSave }) {
             </div>
             <RoyalInput
               value={desc}
-              onChange={(e) => setDesc(e.target.value)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setDesc(e.target.value)}
               placeholder="e.g. Chicken feast, Cool drinks..."
             />
           </div>
@@ -866,7 +878,7 @@ function ExpensesTab({ expenses, members, myName, onSave }) {
             </div>
             <RoyalInput
               value={amount}
-              onChange={(e) => setAmount(e.target.value)}
+              onChange={(e: ChangeEvent<HTMLInputElement>) => setAmount(e.target.value)}
               placeholder="0.00"
               type="number"
             />
@@ -956,7 +968,7 @@ function ExpensesTab({ expenses, members, myName, onSave }) {
               }}
             >
               Each pays: ₹
-              {(parseFloat(amount || 0) / participants.length).toFixed(2)} each
+              {(parseFloat(amount || "0") / participants.length).toFixed(2)} each
             </div>
           )}
 
@@ -1194,7 +1206,7 @@ function ExpensesTab({ expenses, members, myName, onSave }) {
   );
 }
 
-function MembersTab({ members, onSave }) {
+function MembersTab({ members, onSave }: { members: string[]; onSave: (members: string[]) => void }) {
   const [newName, setNewName] = useState("");
 
   const add = () => {
@@ -1204,8 +1216,7 @@ function MembersTab({ members, onSave }) {
     setNewName("");
   };
 
-  const remove = (m) => {
-    if (m === myName) return;
+  const remove = (m: string) => {
     onSave(members.filter((x) => x !== m));
   };
 
@@ -1226,9 +1237,9 @@ function MembersTab({ members, onSave }) {
         <div style={{ display: "flex", gap: 8, marginBottom: 14 }}>
           <RoyalInput
             value={newName}
-            onChange={(e) => setNewName(e.target.value)}
+            onChange={(e: ChangeEvent<HTMLInputElement>) => setNewName(e.target.value)}
             placeholder="Add new noble..."
-            onKeyDown={(e) => e.key === "Enter" && add()}
+            onKeyDown={(e: KeyboardEvent<HTMLInputElement>) => e.key === "Enter" && add()}
           />
           <button
             onClick={add}
@@ -1295,14 +1306,14 @@ function MembersTab({ members, onSave }) {
   );
 }
 
-function PinScreen({ onUnlock }) {
+function PinScreen({ onUnlock }: { onUnlock: (pin: string) => void }) {
   const [pin, setPin] = useState("");
   const [error, setError] = useState("");
   const [checking, setChecking] = useState(false);
 
   const digits = ["1", "2", "3", "4", "5", "6", "7", "8", "9", "", "0", "⌫"];
 
-  const press = (d) => {
+  const press = (d: string) => {
     if (d === "⌫") {
       setPin((p) => p.slice(0, -1));
       setError("");
@@ -1517,7 +1528,7 @@ function PinScreen({ onUnlock }) {
               cursor: pin.length >= 4 ? "pointer" : "not-allowed",
               fontSize: 13,
               letterSpacing: 2,
-            }}
+            } as any}
           >
             {checking ? "⟳ OPENING GATES..." : "⚜️ ENTER THE CHAMBER"}
           </button>
@@ -1550,16 +1561,16 @@ function PinScreen({ onUnlock }) {
 }
 
 export default function App() {
-  const [pin, setPin] = useState(null);
-  const [myName, setMyName] = useState(null);
-  const [members, setMembers] = useState([]);
-  const [expenses, setExpenses] = useState([]);
-  const [settlements, setSettlements] = useState([]);
+  const [pin, setPin] = useState<string | null>(null);
+  const [myName, setMyName] = useState<string | null>(null);
+  const [members, setMembers] = useState<string[]>([]);
+  const [expenses, setExpenses] = useState<any[]>([]);
+  const [settlements, setSettlements] = useState<any[]>([]);
   const [tab, setTab] = useState("home");
   const [loading, setLoading] = useState(true);
   const [syncing, setSyncing] = useState(false);
 
-  const load = async (activePin) => {
+  const load = async (activePin: string) => {
     try {
       const docRef = doc(db, "rooms", activePin);
       const docSnap = await getDoc(docRef);
@@ -1584,7 +1595,7 @@ export default function App() {
     setLoading(false);
   };
 
-  const handleUnlock = (enteredPin) => {
+  const handleUnlock = (enteredPin: string) => {
     setPin(enteredPin);
     setLoading(true);
     load(enteredPin);
@@ -1608,10 +1619,10 @@ export default function App() {
     return () => unsubscribe();
   }, [pin]);
 
-  const saveMembers = async (nm) => {
+  const saveMembers = async (nm: string[]) => {
     setMembers(nm);
 
-    const docRef = doc(db, "rooms", pin);
+    const docRef = doc(db, "rooms", pin!);
 
     await setDoc(
       docRef,
@@ -1624,11 +1635,11 @@ export default function App() {
     );
   };
 
-  const saveExpenses = async (ne) => {
+  const saveExpenses = async (ne: any[]) => {
     setSyncing(true);
     setExpenses(ne);
 
-    const docRef = doc(db, "rooms", pin);
+    const docRef = doc(db, "rooms", pin!);
 
     await setDoc(
       docRef,
@@ -1643,7 +1654,7 @@ export default function App() {
     setSyncing(false);
   };
 
-  const recordPayment = async ({ from, to, amount }) => {
+  const recordPayment = async ({ from, to, amount }: { from: string; to: string; amount: number }) => {
     const newS = {
       id: Date.now(),
       from,
@@ -1657,7 +1668,7 @@ export default function App() {
     setSyncing(true);
     setSettlements(updated);
 
-    const docRef = doc(db, "rooms", pin);
+    const docRef = doc(db, "rooms", pin!);
 
     await setDoc(
       docRef,
@@ -1673,7 +1684,7 @@ export default function App() {
   };
 
   const getBalances = () => {
-    const bal = {};
+    const bal: { [key: string]: number } = {};
     members.forEach((m) => {
       if (m !== myName) bal[m] = 0;
     });
@@ -1681,7 +1692,7 @@ export default function App() {
     expenses.forEach((exp) => {
       const share = exp.amount / exp.participants.length;
       if (exp.paidBy === myName) {
-        exp.participants.forEach((p) => {
+        exp.participants.forEach((p: string) => {
           if (p !== myName && bal[p] !== undefined) bal[p] += share;
         });
       } else if (
