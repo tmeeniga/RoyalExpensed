@@ -2051,7 +2051,7 @@ export default function App() {
           minHeight: "100vh",
           backgroundImage: "url('/room-bg.png')",
           backgroundSize: "cover",
-          backgroundPosition: "center top",
+          backgroundPosition: "center",
           backgroundRepeat: "no-repeat",
           display: "flex",
           justifyContent: "flex-start",
@@ -2066,7 +2066,7 @@ export default function App() {
             position: "absolute",
             inset: 0,
             background: "rgba(0,0,0,0.25)",
-            backdropFilter: "blur(1px)",
+            backdropFilter: "blur(0px)",
           }}
         />
 
@@ -2083,7 +2083,9 @@ export default function App() {
           <div
             style={{
               color: "#fff",
-              fontSize: 28,
+              fontSize: 24,
+              letterSpacing: 2,
+              textShadow: "0 0 10px rgba(240,192,64,0.8)",
               fontWeight: 700,
               marginBottom: 10,
             }}
@@ -2125,13 +2127,13 @@ export default function App() {
             onClick={() => setSelectedRoom("9392")}
             style={{
               width: "100%",
-              padding: "18px",
+              padding: "22px",
               borderRadius: 20,
               border: "1px solid rgba(255,255,255,.25)",
               background: "rgba(255,255,255,.12)",
               backdropFilter: "blur(15px)",
               color: "#fff",
-              fontSize: 18,
+              fontSize: 20,
               fontWeight: 600,
               cursor: "pointer",
             }}
